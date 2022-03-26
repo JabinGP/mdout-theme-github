@@ -75,6 +75,34 @@
             }, 100);
         }
     </script>
+    <script type="text/javascript">
+        const todoElePatt = /\[(?<status>[ xX]?)\](?<content> [\s\S]*)/
+        const isDisableEdit = true  // 不允许编辑
+        function execReplaceElement(ele) {
+            let match = ele.innerHTML.match(todoElePatt)
+            if (!match) { return }
+            let inputEle = document.createElement("input")
+            inputEle.type = "checkbox"
+            inputEle.disabled = isDisableEdit
+            if (match.groups.status.toLowerCase() == "x") {
+                inputEle.setAttribute("checked", "")
+            }
+            ele.innerHTML = `${inputEle.outerHTML}${match.groups.content}`
+        }
+        function replaceTodoElement(ele) {
+            // 每次处理相邻的ul和li
+            let targets = ele.querySelectorAll("ul>li")
+            if (!targets) { return }
+            new Array(...targets).forEach((e) => {
+                // 先修改子元素
+                replaceTodoElement(e)
+                // 再修改父元素
+                execReplaceElement(e)
+            })
+        }
+        // 从根开始替换元素
+        replaceTodoElement(document.body)
+    </script>
 </body>
 
 </html>
